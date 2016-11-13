@@ -1,3 +1,5 @@
-hi 100
-hun 100
-ss 95
+jh 100
+ss 34
+aa 88
+bb 92
+jonghun 98

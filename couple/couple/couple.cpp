@@ -1,6 +1,6 @@
 #include <Turboc.h>//stdio, stdlib, conio, time, windows ฐ๚ฐฐภบ ฟฉทฏฐกม๖ ว์ด๕ฦฤภฯฐ๚ ฑโดษต้ภป มคภววุณํ ว์ด๕ฦฤภฯภฬดู.
 
-
+#pragma comment(lib, "winmm.lib")         //BGMภป ภงวั ภüรณธฎฑโ
 
 #define LEFT 75 
 #define RIGHT 77
@@ -10,54 +10,67 @@
 
 int difficulty = 4; // ฐิภำ ณญภฬตต มถภýบฏผ๖
 enum Status { HIDDEN, FLIP, TEMPFLIP };//ฤซตๅ ผ๛ฐÜม๘ป๓ลย, ตฺมýพ๎ม๘ป๓ลย, ภฯฝรภ๛ภธทฮ ตฺมýพ๎ม๘ป๓ลยธฆ มคภววัดู.
-struct tag_Cell
+struct tag_Cell //ฐข ฤญฟกด๋วั ตฅภฬลอธฆ ภ๚ภๅวฯดย ฑธมถรผ
 {
 	int Num;
 	Status St;
 };
-struct userdb
+struct userdb //ภฏภ๚มคบธธฆ ภ๚ภๅวฯดย ฑธมถรผ(ภฬม฿ฟฌฐแธฎฝบฦฎ)
 {
 	char dbusername[20];
 	int dbscore;
 	struct userdb* next;
 	struct userdb* prev;
-	
+
 };
-userdb *head;
-userdb *tail;
+userdb *head; //ภüฟชบฏผ๖ head(รณภฝ)
+userdb *tail; //ภüฟชบฏผ๖ tailณ๋ตๅ(ธถม๖ธท)
 tag_Cell arCell[6][6];//วิผ๖ รึด๋น่ฟญฐชภป มคภววัดู
-int nx, ny;
-int count;
+					  //--------------บฏผ๖ผฑพ๐
+int sound = 1;               //วมทฮฑืทฅ ฝรภÛวา ถงธธ BGMฦฒฑโภงวุ
+int startflag = 1;            //gameStartวิผ๖ธฆ วัน๘ธธ ฝววเวฯฑโ ภงวุ
+int nx, ny;//xyรเ
+int count;//ฤซฟ๎ฦรฟ๋
 int score;//มกผ๖ ฑโทฯฟ๋ บฏผ๖
 int highscore;//รึฐํมก ฑโทฯภปภงวัQบฏผ๖
-char username[20];
+char username[20];//ภฏภ๚ภฬธง ภฯฝรภ๚ภๅ
+int gamecount = 0;//ภฏภ๚ ฝบฤฺพ๎ ภฯฝรภ๚ภๅ
+int firstdatainsert = 0;//ตฅภฬลอ ฐก ฑโมธฟกภึดยม๖ พฦดฯธ้ พ๘ภฬ รณภฝ ป๐ภิวฯดยม๖.
 int userscore;
 int overlap; //dbฟก ต้พ๎ภึดย ภฏภ๚ภฮม๖พฦดัม๖
-void printrank();
-void init();
-int searchdb(char *username);//dbตฅภฬลอฟกผญ ม฿บนตวดย ดะณืภำภฬภึดยม๖ รฃฑโ
-int inserttodb(char *username, int userscore);//dbตฅภฬลอฟก ภฏภ๚มคบธ ภิทย
-void InitGame();//ฐิภำฝรภÛ
-void dbsave();
-void dbload();
-void menu();
-void DrawScreen(BOOL bHint);//ศญธ้ฑืธฎฑโ
-void GetTempFlip(int *tx, int *ty);
-int GetRemain();//ณฒภบ ฤซตๅผ๖ ฑธวฯฑโ
-void introducinggame();//ฐิภำผาฐณ
+			 //--------------วิผ๖ผฑพ๐
+void printrank();//ทฉลทธฎฝบฦฎ รโทย(ภฬมพศฦ)
+void init();//ภฬม฿ฟฌฐแธฎฝบฦฎ ณ๋ตๅ ตฟภ๛วาด็ นื รสฑโศญ(ภฬมพศฦ)
+int searchdb(char *username);//dbตฅภฬลอฟกผญ ม฿บนตวดย ดะณืภำภฬภึดยม๖ รฃฑโ(ภฬมพศฦ)
+void InitGame();//ฐิภำฝรภÛ(ฐฐภฬ)
+void dbsave();//ฦฤภฯฟก ตฅภฬลอ ฑโทฯ(ภฬมพศฦ);
+void dbload();//ฦฤภฯภธทฮบฮลอ ตฅภฬลอ ทฮตๅ(ภฬมพศฦ);
+int inserttodb(char *username, int userscore);//ภฬม฿ฟฌฐแธฎฝบฦฎฟก ตฅภฬลอป๐ภิวิผ๖(ภฬมพศฦ)
+void menu();//ธÞดบ รโทยวิผ๖(ภฬมพศฦ)
+void DrawScreen(BOOL bHint);//ศญธ้ฑืธฎฑโวิผ๖(ฐฐภฬ)
+void GetTempFlip(int *tx, int *ty);//ตฺมýพ๎ม๘ฤซตๅภว มยวฅธฆ นÝณณ(ฐฐภฬ)
+int GetRemain();//ณฒภบ ฤซตๅผ๖ ฑธวฯฑโ(ฐฐภฬ)
+void introducinggame();//ฐิภำผาฐณ(ภฬมพศฦ);
+void gameStart(); //ฐิภำฝรภÛฝร ต๐ฝบวรทนภฬ บฮบะ(วใฐว)
 
 void main()
 {
-	overlap = 0;//ภฏภ๚มคบธ ม฿บนฟฉบฮ บฏผ๖ 0ภธทฮ รสฑโศญ
+
 	init(); //ตฟภ๛วาด็รสฑโศญ
-	int ch;//ฐิภำฝรภÛฝร ภิทยนÞดย บฏผ๖	
+	int ch;//ฐิภำฝรภÛฝร ภิทยนÞดย บฏผ๖   
 	int tx, ty;//
-	int whileflag=1; // ภüรผภ๛ภฮ whileนฎภป ภงวั วรทกฑืฐช
+	int SwitchForRank;//ทฉลท ฝบภงฤกนฎภป ภงวั บฏผ๖
+	int whileflag = 1; // ภüรผภ๛ภฮ whileนฎภป ภงวั วรทกฑืฐช
+	char y_1;//yธฆ ภิทยนÞฑโ ภงวั บฏผ๖
+	char y_2;//yธฆ ภิทยนÞฑโ ภงวั บฏผ๖2
 	int gameflag = 1;//ฐิภำฝววเ นÝบนwhileนฎภป ภงวั วรทกฑืฐช
 	int setflag; // ธÞภฮ ธÞดบ caseนฎภป ภงวั วรทกฑืฐช
 	int forwhileflag = 1; //ผผฦร caseนฎภป ภงวั วรทกฑืฐช
 	int userwhileflag = 1;//userตฅภฬลอ ปýผบฝร whileนฎภป ภงวั วรทกฑืฐช
+
 	dbload();//dbทฮตๅ
+
+	gameStart(); //BGMฝววเฐ๚ รณภฝศญธ้ภป ฒูนฮ วิผ๖
 
 	while (whileflag) {   //1น๘ whileนฎ
 		menu();//รสฑโ ธÞดบ รโทย
@@ -66,21 +79,23 @@ void main()
 		case 1:       //ฐิภำ ฝววเ
 			clrscr(); //ฑโมธภว ธÞภฮธÞดบศญธ้ ม๖ฟ์ฐํ ฐิภำม๘ภิ
 			userwhileflag = 1;
+			gamecount = 0;
+			overlap = 0;//ภฏภ๚มคบธ ม฿บนฟฉบฮ บฏผ๖ 0ภธทฮ รสฑโศญ
 			while (userwhileflag) {//ดะณืภำ ม฿บนศฎภฮ นื ฐิภำม๘ภิภป ภงวั นÝบนนฎ
-				printf("ดะณืภำภป ภิทยวฯผผฟไ");
+				printf("ดะณืภำภป ภิทยวฯผผฟไ\n");
 				printf("ด็ฝลภว ดะณืภำภบ : ");
-				char yorn;//yภิทยนÞฑโ ภงวิภป ภงวั บฏผ๖
+
 				scanf("%s", username);//ภฏภ๚ดะณืภำ ภิทยนÞดยดู.
 				if (searchdb(username) == 1) {
 					clrscr();
 					printf("%s ดย ทฉลทตฅภฬลอฟก ภฬนฬ มธภ็วฯดย ป็ฟ๋ภฺภิดฯดู. ฐ่ผำวฯฝรทมธ้ Yธฆ ภิทยวุมึผผฟไ : ", username);
-					
-					scanf(" %c", &yorn);
-					
-					if ((89 == yorn) || (121 == yorn)) {
+
+					scanf(" %c", &y_1);
+
+					if ((89 == y_1) || (121 == y_1)) {
 						clrscr();
 						userwhileflag = 0;
-
+						overlap = 1;
 					}
 					else
 						clrscr();
@@ -92,10 +107,13 @@ void main()
 			}
 			randomize();
 			InitGame();
-			gameflag = 1;
+			gameflag = 1;//ฐิภำภป วัฑโทฯ ณฒฑไดู
+
 
 			while (gameflag) {//2น๘ whileนฎ
-				gotoxy(nx * 5 + 2, ny * 3 + 2);
+				if (gamecount != 0)
+					overlap = 1;
+				gotoxy(nx * 8 + 3, ny * 3 + 2);
 				ch = _getch();
 				if (ch == 0xE0) {
 					ch = _getch();
@@ -116,9 +134,25 @@ void main()
 				}
 				else {
 					switch (ch) {
+
 					case ESC: // escดฉธฆฝร ว๖ นÝบนนฎ มพทแฟอวิฒฒ 1น๘whileนฎภธทฮ ตนพฦฐกธ็ ฐิภำศญธ้ ม๖ฟ์ฑโ
-						gameflag = 0;
 						clrscr();
+						printf("ฐิภำภฬ มพทแตหดฯดู. ฐ่ผำวฯฝรทมธ้ (Y/N) ดญทฏมึผผฟไ : ");
+						scanf(" %c", &y_2);
+
+						if ((89 == y_2) || (121 == y_2)) {
+							clrscr();
+							gameflag = 0;
+
+							break;
+						}
+						else
+						{
+							clrscr();
+							DrawScreen(TRUE);
+
+						}
+
 						//exit(0);
 						break;
 					case ' ':
@@ -135,18 +169,24 @@ void main()
 									arCell[nx][ny].St = FLIP;
 									if (GetRemain() == 0) {
 										DrawScreen(FALSE);//drawscreen วิผ๖ศฃรโ
-										gotoxy(26, 26); puts("รเวฯวีดฯดู. ดูฝร ฝรภÛวีดฯดู.");
+
 										score = 100 - (count - ((difficulty*difficulty / 2) - (GetRemain() / 2))) * 2;//มกผ๖
-										
-										highscore=	inserttodb(username,score);//2ม฿ฟฌฐแธฎฝบฦฎฟก ตฅภฬลอป๐ภิ
-					
+
+										highscore = inserttodb(username, score);//2ม฿ฟฌฐแธฎฝบฦฎฟก ตฅภฬลอป๐ภิ
+
 										if (score < 0) {//ฝบฤฺพ๎ฐก 0นุภธทฮ ณปทมฐกม๖พสตตทฯ มถฐวนฎรโทย
-											gotoxy(26, 24);	printf("ด็ฝลภว มกผ๖ดย -> 0มก<- ภิดฯดู~~!");
+											gotoxy(50, 12);   printf("ด็ฝลภว มกผ๖ดย -> 0มก<- ภิดฯดู~~!");
 										}
-										else{ 
-											gotoxy(26, 24); printf("ด็ฝลภว มกผ๖ดย      ->%dมก<- ภิดฯดู~~!", score);//ฝบฤฺพ๎รโทย
-											gotoxy(26, 28); printf("ด็ฝลภว รึฐํ มกผ๖ดย ->%dมก<- ภิดฯดู~~!", highscore);//รึฐํมกผ๖ รโทย
-										}delay(2000);
+										else {
+											gotoxy(50, 12); printf("ด็ฝลภว มกผ๖ดย      ->%dมก<- ภิดฯดู~~!", score);//ฝบฤฺพ๎รโทย
+											gotoxy(50, 14); printf("ด็ฝลภว รึฐํ มกผ๖ดย ->%dมก<- ภิดฯดู~~!", highscore);//รึฐํมกผ๖ รโทย
+											delay(1000);
+											gotoxy(50, 16); puts("รเวฯวีดฯดู. ดูฝร ฝรภÛวีดฯดู.");
+										}delay(1000);
+										dbsave();//ฐิภำภ๚ภๅ
+										gamecount++;
+
+
 										InitGame();
 									}
 								}
@@ -167,15 +207,28 @@ void main()
 			break;
 		case 2:
 			clrscr();
-			introducinggame();
+			introducinggame();//ฐิภำ ผาฐณ
 			if (_getch() != NULL) {
 				clrscr();
 				break;
 			}
 		case 3:
-			printrank();
+			clrscr();
 			printf("1. ทฉลทผ๘ภง\n");//
 			printf("2. ทฉลทรสฑโศญ\n");//
+			scanf("%d", &SwitchForRank);
+			switch (SwitchForRank) {
+			case 1:
+				printrank();
+				break;
+			case 2:
+				head->next = tail; //ว์ตๅณ๋ตๅธฆ ธถม๖ธทณ๋ตๅทฮ ภฬพ๎มÜภธทฮฝแ รสฑโศญ
+				dbsave();
+				printf("รสฑโศญ ฟฯทแ");
+				delay(500);
+				clrscr();
+				break;
+			}
 			break;
 		case 4:
 			int temp;
@@ -183,7 +236,7 @@ void main()
 			printf("ณญภฬตตธฆ มถภýวีดฯดู. (ฑโบป ณญภฬตตดย 2=4x4)\n"); //ณญภฬตตมถภý
 			printf("ฟ๘วฯดย ณญภฬตตภว ผýภฺธฆ ภิทยวุมึผผฟไ.(1=2x2, 2=4x4, 3=6x6)\n");//ณญภฬตต มถภý
 			printf("----> ");
-			
+
 			while (forwhileflag) {//ณญภฬตตมถภýฝร ฟนฟÜรณธฎ
 				scanf("%d", &temp);
 				if (temp >= 1 && temp <= 3) {
@@ -192,22 +245,29 @@ void main()
 					break;
 				}
 				else {
-				printf("ภ฿ธ๘ภิทยวฯผฬฝภดฯดู. 1~3ป็ภฬภว ผýภฺธฆ ภิทยวุมึผผฟไ\n");
-				printf("----> ");
+					printf("ภ฿ธ๘ภิทยวฯผฬฝภดฯดู. 1~3ป็ภฬภว ผýภฺธฆ ภิทยวุมึผผฟไ\n");
+					printf("----> ");
 				}
-			
+
 			}
+			//ณญภฬตตฟก ต๛ธฅ ณ๋ทกภ็ปý
+			if (temp == 1)
+				PlaySound(TEXT("Sin.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+			else if (temp == 2)
+				PlaySound(TEXT("RockinNightStyle.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+			else
+				PlaySound(TEXT("Nightmare.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 			break;
 		case 5:
 			whileflag = 0;//นÝบนนฎ มพทแ
 			break;
-			}
-			
+		}
+
 	}
-	
+
 }
 
-
+//ฐิภำฦวภป รสฑโศญ วฯดย วิผ๖
 void InitGame()
 {
 	int i, j;
@@ -216,7 +276,7 @@ void InitGame()
 	count = 0;
 
 	memset(arCell, 0, sizeof(arCell));
-	for (i = 1; i <= difficulty*difficulty /2; i++) {
+	for (i = 1; i <= difficulty*difficulty / 2; i++) {
 		for (j = 0; j<2; j++) {
 			do {
 				x = random(difficulty);//
@@ -232,35 +292,59 @@ void InitGame()
 	DrawScreen(FALSE);
 }
 
+//ศญธ้ภป ฑืธฎดย วิผ๖
 void DrawScreen(BOOL bHint)
 {
-	
+
 	int x, y;
+	int s, g;
 
 	for (y = 0; y<difficulty; y++) {//
 		for (x = 0; x<difficulty; x++) {//
-			gotoxy(x * 5 + 2, y * 3 + 2);
+			gotoxy(x * 8 + 2, y * 3 + 2);
 			if (bHint == TRUE || arCell[x][y].St == FLIP) {
 				gotoxy(wherex() - 1, wherey());
-				printf("[%d]", arCell[x][y].Num);
+				s = x * 8 + 2;
+				g = y * 3 + 2;
+				gotoxy(s - 2, g - 1);
+				printf("ฆฎฆฌฆฌฆฏ");
+				gotoxy(s - 2, g);
+				printf("ฆญ%2d  ฆญ", arCell[x][y].Num);
+				gotoxy(s - 2, g + 1);
+				printf("ฆฑฆฌฆฌฆฐ");
 			}
 			else if (arCell[x][y].St == TEMPFLIP) {
-				printf("%d", arCell[x][y].Num);
+				s = x * 8 + 2;
+				g = y * 3 + 2;
+				gotoxy(s - 2, g - 1);
+				printf("ฆฎ    ฆฏ");
+				gotoxy(s - 2, g);
+				printf("  %2d   ", arCell[x][y].Num);
+				gotoxy(s - 2, g + 1);
+				printf("ฆฑ    ฆฐ");
 			}
 			else {
-				printf("?");
+				s = x * 8 + 2;
+				g = y * 3 + 2;
+				gotoxy(s - 2, g - 1);
+				printf("ฆฎฆฌฆฌฆฏ");
+				gotoxy(s - 2, g);
+				printf("ฆญ ขพ ฆญ");
+				gotoxy(s - 2, g + 1);
+				printf("ฆฑฆฌฆฌฆฐ");
 			}
 		}
 	}
-	//ฐิภำฟท มคบธฦว ณปฟ๋
-	gotoxy(40, 4); printf("ป็ฟ๋ภฺ ภฬธง : %s",username);
-	gotoxy(40, 6); puts("ฤฟผญลฐ:ภฬตฟ. ฐ๘น้:ตฺมýฑโ. Esc:มพทแ");
-	gotoxy(40, 8); printf("รั ฝรตต ศธผ๖ : %d", count);
-	gotoxy(40, 10); printf("พฦม๗ ธ๘ รฃภบ ฐอ : %d ", GetRemain());
-	gotoxy(40, 12); printf("ฦฒธฐ ศฝผ๖ : %d ", count-((difficulty*difficulty/2)-(GetRemain()/2)));
+
+	gotoxy(50, 2); printf("ป็ฟ๋ภฺ ภฬธง : %s", username);
+	gotoxy(50, 4); puts("ฤฟผญลฐ:ภฬตฟ. ฐ๘น้:ตฺมýฑโ. Esc:มพทแ");
+	gotoxy(50, 6); printf("รั ฝรตต ศธผ๖ : %d", count);
+	gotoxy(50, 8); printf("พฦม๗ ธ๘ รฃภบ ฐอ : %d ", GetRemain());
+	gotoxy(50, 10); printf("ฦฒธฐ ศฝผ๖ : %d ", count - ((difficulty*difficulty / 2) - (GetRemain() / 2)));
 
 }
 
+//ภำฝรทฮ ตฺมýว๔ม๘ ฤญภว น๘ศฃธฆ มถป็
 void GetTempFlip(int *tx, int *ty)
 {
 	int i, j;
@@ -276,18 +360,19 @@ void GetTempFlip(int *tx, int *ty)
 	*tx = -1;
 }
 
+//พฦม๗ รฃม๖ธ๘วั ฤญภว ฐนผ๖ธฆ มถป็
 int GetRemain()
 {
 	int i, j;
 	int remain = difficulty*difficulty;//
-	
+
 
 	for (i = 0; i<difficulty; i++) {//
 		for (j = 0; j<difficulty; j++) {//
 			if (arCell[i][j].St == FLIP) {
 				remain--;
 			}
-		
+
 		}
 	}
 	return remain;
@@ -296,7 +381,7 @@ int searchdb(char *username)//ภฏภ๚ดะณืภำ ภิทยฝร บ๑ฑณวุผญ ม฿บนฟฉบฮธฆ ป็ฟ๋ภฺฟกฐิ ศ
 {
 	userdb *tmp;
 	tmp = head->next;
-	while (strcmp(tmp->dbusername, username) != 0 && tmp != tail)
+	while (strcmp(tmp->dbusername, username) != 0 && tmp != tail) //
 	{
 		tmp = tmp->next;
 	}
@@ -307,28 +392,51 @@ int searchdb(char *username)//ภฏภ๚ดะณืภำ ภิทยฝร บ๑ฑณวุผญ ม฿บนฟฉบฮธฆ ป็ฟ๋ภฺฟกฐิ ศ
 		overlap = 1;//ตฅภฬลอ ม฿บนป๓ลยทฮ บฏฐๆ
 		return 1;
 	}
-	
+
 }
 void printrank()
 {
+	clrscr();
 	userdb *tmp = head->next;    // tmpดย ธำธฎภว ดูภฝ ณ๋ตๅ มึผาฐชภป ฐกมü
 	int ranknum = 1;
-	while (tmp != tail)     // ณ๋ตๅภว ณก ( ฒฟธฎฑ๎ม๖ )
-	{
-		printf("ผ๘ภง : %d	ดะณืภำ : %10s	มกผ๖ : %10d\n",ranknum++,tmp->dbusername,tmp->dbscore); // tmpฐก ฐกธฎลฐดย ณ๋ตๅ ตฅภฬลอธฆ รโทย
-		tmp = tmp->next;    // tmp ดูภฝภธทฮ ภฬตฟ
+	char error = 'ฬฬ';
+
+	if (tmp->dbusername[0] == error&&gamecount == 0) {
+		printf("มคบธฐก มธภ็วฯม๖ พสฝภดฯดู.");
+		if (_getch() != NULL) {
+			clrscr();
+		}
 	}
-	puts("");
+	else
+	{
+		if (firstdatainsert == 1) {
+			tmp = tmp->next;
+
+		}
+		while (tmp != tail)     // ณ๋ตๅภว ณก ( ฒฟธฎฑ๎ม๖ )
+		{
+
+			printf("ผ๘ภง : %d   ดะณืภำ : %10s   มกผ๖ : %10d\n", ranknum++, tmp->dbusername, tmp->dbscore); // tmpฐก ฐกธฎลฐดย ณ๋ตๅ ตฅภฬลอธฆ รโทย
+			tmp = tmp->next;    // tmp ดูภฝภธทฮ ภฬตฟ
+		}
+	}
+
+	if (_getch() != NULL) {
+		clrscr();
+
+	}
+
 
 
 }
-int inserttodb(char *username,int userscore) {
+int inserttodb(char *username, int userscore) {
 	userdb *tmp = head->next;//ฦ๗ภฮลอภว ฝรภÛมกภบ ธำธฎดูภฝ
 	userdb *node = (userdb*)malloc(sizeof(userdb));//ป๕ ณ๋ตๅ ตฟภ๛วาด็
-		strcpy(node->dbusername, username);//ป๕ ณ๋ตๅฟก ภฬธงบนป็
-		node->dbscore = userscore;//ป๕ ณ๋ตๅฟก มกผ๖ บนป็
+	strcpy(node->dbusername, username);//ป๕ ณ๋ตๅฟก ภฬธงบนป็
+	node->dbscore = userscore;//ป๕ ณ๋ตๅฟก มกผ๖ บนป็
 	if (head->next == tail)//ณ๋ตๅฐก พ๘ภธธ้(ธำธฎ ดูภฝภฬ ฒฟธฎธ้)
 	{
+
 		//ธำธฎฟอ ฒฟธฎ ป็ภฬฟก ป๕ ณ๋ตๅ ณึภฝ
 		head->next = node;
 		node->prev = head;
@@ -338,45 +446,52 @@ int inserttodb(char *username,int userscore) {
 	}
 	else
 	{
-		while (1)//นซวัท็วม
+		if (overlap == 0)
 		{
-			if (overlap == 0) {
-				if (tmp->dbscore > node->dbscore)//ฑโมธภว ณ๋ตๅภว มกผ๖ฐก ป๕ มกผ๖บธดู ลฉธ้
+			while (1)//นซวัท็วม
+			{
+
+				if (tmp->dbscore < node->dbscore)//ฑโมธภว ณ๋ตๅภว มกผ๖ฐก ป๕ มกผ๖บธดู ลฉธ้
 				{
+
 					node->next = tmp;       // ฑโมธภวณ๋ตๅ พีฟก ป๕ณ๋ตๅ ป๐ภิ
 					node->prev = tmp->prev;
 					tmp->prev->next = node;
 					tmp->prev = node;
-					return 85;
+					return userscore;
 				}
+				if (tmp == tail)        // ป๕ ณ๋ตๅภว มกผ๖ฐก มฆภฯ ลฉธ้
+				{
+
+					node->next = tail;      // ฒฟธฎ พีฟก ป๕ ณ๋ตๅ ป๐ภิ
+					node->prev = tail->prev;
+					tail->prev->next = node;
+					tail->prev = node;
+					return userscore;
+				}
+				tmp = tmp->next;        // ฑโมธภว ณ๋ตๅ ฦ๗ภฮลอ ภฬตฟ
 			}
-		
-			else {
-				if (!strcmp(tmp->dbusername, node->dbusername)) { //ฐฐภบภฏภ๚ฐก ภึภธธ้
-					if (tmp->dbscore < node->dbscore) {//ฑโมธภวมกผ๖บธดู ว๖ภ็มกผ๖ฐก ด๕ลฉธ้
+		}
+		else
+		{
+			while (1)
+			{
+
+				if (!strcmp(tmp->dbusername, node->dbusername))  //ฐฐภบภฏภ๚ฐก ภึภธธ้
+				{
+					if (tmp->dbscore < node->dbscore) //ฑโมธภวมกผ๖บธดู ว๖ภ็มกผ๖ฐก ด๕ลฉธ้
+					{
 						tmp->dbscore = node->dbscore;//ภ๚ภๅศฤ
 						return tmp->dbscore;//ธฎลฯวัดู.
 					}
-					else {
-						
+					else
+					{
 						return tmp->dbscore;//ฑโมธภว มกผ๖ฐกด๕ลฉธ้ ฑโมธภวมกผ๖ ธฎลฯ
 					}
+
 				}
-
+				tmp = tmp->next;
 			}
-			
-
-			if (tmp == tail)        // ป๕ ณ๋ตๅภว มกผ๖ฐก มฆภฯ ลฉธ้
-			{
-				node->next = tail;      // ฒฟธฎ พีฟก ป๕ ณ๋ตๅ ป๐ภิ
-				node->prev = tail->prev;
-				tail->prev->next = node;
-				tail->prev = node;
-				return 89;
-			}
-			tmp = tmp->next;        // ฑโมธภว ณ๋ตๅ ฦ๗ภฮลอ ภฬตฟ
-
-
 		}
 	}
 }
@@ -385,55 +500,76 @@ void dbload()
 {
 	char tempname[20];
 	int tempscore = 0;
+	char error_1 = 'ฬฬ';
 
-	
 	FILE *fpin;//ฦฤภฯฦ๗ภฮลอบฏผ๖ภวผฑพ๐
-	
+
 	fpin = fopen("userdb.txt", "r");//userdb.txt ฦฤภฯภป ภะพ๎ต้ภฮดู
-	
+
 	while (!feof(fpin)) //ฦฤภฯภป ดู ภะพ๎ต้ภฯถงฑ๎ม๖ whileนฎภฬ ตทดู
 	{
 		userdb *node = (userdb*)malloc(sizeof(userdb)); // ป๕ ณ๋ตๅ วาด็
-		printf("ฟฉฑโฑ๎ม๖");
-		fscanf(fpin,"%s %d",tempname,&tempscore);
-		printf("ฟฉฑโฑ๎ม๖2");
+
+		fscanf(fpin, "%s %d", tempname, &tempscore);
+		if (tempname[0] == error_1)
+		{
+
+			firstdatainsert = 1;
+		}
 		strcpy(node->dbusername, tempname);
 		node->dbscore = tempscore;
-			if (head->next == tail)     // ณ๋ตๅฐก พ๘ภธธ้ ( ธำธฎดูภฝภฬ ฒฟธฎธ้ )
-			{
-				// ธำธฎฟอ ฒฟธฎ ป็ภฬฟก ป๕ ณ๋ตๅณึภฝ
-				head->next = node;
-				node->prev = head;
-				node->next = tail;
-				tail->prev = node;
-				
-			}
-			else         // ดูธฅณ๋ตๅฐก ภึภธธ้
-			{
-				tail->prev->next = node; // ฒฟธฎ นูทฮ ภüฟก ป๕ ณ๋ตๅ ร฿ฐก
-				node->prev = tail->prev;    // ป๕ ณ๋ตๅ ภฬภüภป ฒฟธฎภว ภฬภüภธทฮ ( ฑโมธณ๋ตๅฟอ ฒฟธฎ ป็ภฬฟก ป๕ ณ๋ตๅ ต้พ๎ฐจ )
-				node->next = tail;   // ป๕ ณ๋ตๅ ดูภฝภบ ฒฟธฎ
-				tail->prev = node;   // ฒฟธฎ ภฬภüภบ ป๕ ณ๋ตๅ
-				
-			}
-			//node = node->next;
+		if (head->next == tail)     // ณ๋ตๅฐก พ๘ภธธ้ ( ธำธฎดูภฝภฬ ฒฟธฎธ้ )
+		{
+
+
+			// ธำธฎฟอ ฒฟธฎ ป็ภฬฟก ป๕ ณ๋ตๅณึภฝ
+			head->next = node;
+			node->prev = head;
+			node->next = tail;
+			tail->prev = node;
+
+		}
+		else         // ดูธฅณ๋ตๅฐก ภึภธธ้
+		{
+
+			tail->prev->next = node; // ฒฟธฎ นูทฮ ภüฟก ป๕ ณ๋ตๅ ร฿ฐก
+			node->prev = tail->prev;    // ป๕ ณ๋ตๅ ภฬภüภป ฒฟธฎภว ภฬภüภธทฮ ( ฑโมธณ๋ตๅฟอ ฒฟธฎ ป็ภฬฟก ป๕ ณ๋ตๅ ต้พ๎ฐจ )
+			node->next = tail;   // ป๕ ณ๋ตๅ ดูภฝภบ ฒฟธฎ
+			tail->prev = node;   // ฒฟธฎ ภฬภüภบ ป๕ ณ๋ตๅ
+
+		}
+		//node = node->next;
 	}
 
 	fclose(fpin);//ฟฌฐแม฿ภฮ file ฝบฦฎธฒภป มพทแวิ
-	printf("dbทฮตๅ ผบฐ๘\n");
 }
 void dbsave()//ภฏภ๚dbฟก ตฅภฬลอธฆ ผ๘ย๗ภ๛ภธทฮ ป๐ภิวัดู
 {
+	char error_1 = 'ฬฬ';
+
 	userdb *tmp = head->next;//tmpดย ธำธฎภว ดูภฝ ณ๋ตๅ มึผาฐชภป ฐกมü
-	
+
 	FILE *fpout;//ฦฤภฯฦ๗ภฮลอบฏผ๖ภวผฑพ๐
-    fpout = fopen("userdb.txt", "w");//fpout ฦฤภฯบฏผ๖ รสฑโศญ
+	fpout = fopen("userdb.txt", "w");//fpout ฦฤภฯบฏผ๖ รสฑโศญ
 	while (tmp != tail) {//ณ๋ตๅภว ณก(ฒฟธฎฑ๎ม๖)
-		fprintf(fpout, "%s %d", tmp->dbusername,tmp->dbscore);//ฦฤภฯdbฟก ฑโทฯวัดู
+
+		if (tmp->dbusername[0] != error_1) {
+
+			if (tmp->next != tail) {
+
+				fprintf(fpout, "%s %d\n", tmp->dbusername, tmp->dbscore);//ฦฤภฯdbฟก ฑโทฯวัดู
+
+			}
+			else {
+
+				fprintf(fpout, "%s %d", tmp->dbusername, tmp->dbscore);
+			}
+		}
+
 		tmp = tmp->next; //tmp ดูภฝภธทฮ ภฬตฟ
 	}
 	fclose(fpout);//ฟฌฐแม฿ภฮ fileฝบฦฎธฒภป มพทแวิ
-	puts("dbภ๚ภๅ ฟฯทแ\n");
+
 }
 void init() {
 	head = (userdb*)malloc(sizeof(userdb)); // ธำธฎตฟภ๛วาด็
@@ -443,11 +579,11 @@ void init() {
 	tail->prev = head;      // ฒฟธฎภฬภüภบ ธำธฎ
 	tail->next = tail;      // ฒฟธฎดูภฝภบ ภฺฑโภฺฝล
 
-	
+
 
 }
 void menu() {
-	printf("กูยฆ ธยร฿ฑโ ฐิภำ1กู\n");//วฅฝรฟ๋
+	printf("กูยฆ ธยร฿ฑโ ฐิภำกู\n");//วฅฝรฟ๋
 	printf("1. ฐิภำฝววเ\n");//ฐิภำฝววเwhileนฎภธทฮม๘ภิภป วฅฑโวุมÜ
 	printf("2. ฐิภำผาฐณ\n");//
 	printf("3. ทฉลท\n");//
@@ -458,4 +594,608 @@ void menu() {
 void introducinggame() {
 	printf("ยฆ รฃฑโ ฐิภำภฬถ๕ 2x2, 4x4, 6x6 ฐ๚ ฐฐภบ ฤญฟก ต้พ๎ภึดย ผฏฟฉภึดย ฤซตๅม฿ ผýภฺฐก ฐฐภบ ยฆภป รฃดย ฐิภำภฬดู. ภฯมพภว ฑโพ๏ทย ลืฝบฦฎ ฐิภำภฬถ๓ฐํ วา ผ๖ ภึดู.\nฐิภำภป ฝรภÛวฯธ้ 2รสฐฃ ผýภฺต้ภฬ พ๎ต๐ ผ๛พ๎ ภึดยม๖ธฆ บธฟฉมึดยตฅ น่ฤก ป๓ศฒภป ภ็ปกธฎ ฑโพ๏วุ ตฮพ๎พ฿ วัดู.ภแฝร ศฤ ธ๐ต็ ผýภฺดย ? ทฮ นูฒ๎ดยตฅ ผ๛พ๎ ภึดย ผýภฺภว ยฆภป รึผาวัภว ฝรตตทฮ รฃดย ฐอภฬ ฐิภำภว ธ๑วฅภฬดู.ฤฟผญ ภฬตฟลฐฟอ ฐ๘น้ลฐทฮ ฐิภำภป ม๘วเวฯธ็ Escธฆ ดฉธฃธ้ ฐิภำภฬ มพทแตศดู.ฤฟผญลฐทฮ ผýภฺต้ ป็ภฬธฆ ภฬตฟวฯธ็ ฐ๘น้ลฐทฮ ผýภฺธฆ ฟญพ๎ บธฐํ ยฆภฬ ธยดย ตฮ ผýภฺธฆ ฟฌผำภธทฮ ผฑลรวฯฟฉ ผ๛ฐÜม๘ ผýภฺฝึภป รฃดยดู.ฦฒธฑ ฐๆฟ์ดย ฟึ ฦฒทศดยม๖ธฆ 1รสฐฃ บธฟฉมึดยตฅ ภฬถง ผ๛ฐÜม๘ ผýภฺภว ภงฤกธฆ ภ฿ ฑโพ๏วุ ตฮดย ฐอภฬ ภฬ ฐิภำภว ฟไทษภฬดู.\n ");
 	printf("\n\nพฦนซลฐณช ดฉธฃธ้ ภฬภüศญธ้ภธทฮ ตนพฦฐฉดฯดู");
+}
+
+void gameStart()
+{
+	system("title ฤซตๅ ยฆ ธยร฿ฑโ");            //วมทฮฑืทฅ มฆธ๑
+	system("mode con:cols=90 lines=20");      //ฤÜผึ รข ลฉฑโบฏฐๆ
+
+											  //รณภฝ วมทฮฑืทฅ ฝววเ ฝร BGMภ็ปý
+	if (sound == 1)
+	{
+		PlaySound(TEXT("OBLIVION.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+		sound = 0;
+	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);      //ฦ๙ฦฎ ป๖ป๓บฏฐๆ
+	int delayNum = 1;      //ต๔ทนภฬ มถภýบฏผ๖
+	if (startflag == 1)
+	{
+		//1,2น๘ยฐ มู
+		for (int j = 0; j < 2; j++)
+		{
+			for (int i = 0; i < 44; i++)
+			{
+				printf("กู");
+				delay(delayNum);
+			}
+			printf("\n");
+		}
+
+		//3น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 21; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//4น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 12; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//5น๘ยฐ มู
+		for (int j = 0; j < 2; j++)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				printf("กู");
+				delay(delayNum);
+			}
+			for (int i = 0; i < 8; i++)
+			{
+				printf("กฺ");
+				delay(delayNum);
+			}
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//6น๘ยฐ มู
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//7น๘ยฐ มู
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//8น๘ยฐ มู
+		for (int i = 0; i < 3; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 3; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//9น๘ยฐมู
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+
+
+		//10น๘ยฐมู
+		printf("กู");
+		delay(delayNum);
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		printf("กู");
+		delay(delayNum);
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 3; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 16; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 9);
+		//11น๘ยฐ มู
+		for (int i = 0; i < 44; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//12น๘ยฐ มู
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 15; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 11; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//13น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 11; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//14น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//15น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//16น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 9; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//17น๘ยฐ มู = 15น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 5; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//18น๘ยฐ มู = 14น๘ยฐ มู
+		for (int i = 0; i < 22; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("กฺ");
+		delay(delayNum);
+		for (int i = 0; i < 8; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 7; i++)
+		{
+			printf("กฺ");
+			delay(delayNum);
+		}
+		for (int i = 0; i < 6; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+
+		//19, 20 น๘ยฐ มู
+		for (int i = 0; i < 44; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		printf("\n");
+		for (int i = 0; i < 44; i++)
+		{
+			printf("กู");
+			delay(delayNum);
+		}
+		delay(1000);
+
+
+		//ป๖ป๓นูฒÞศฟฐ๚มึฑโ
+		for (int i = 15; i >= 1; i--)
+		{
+			gotoxy(0, 0);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), i);
+			//printf("กฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกูกูกูกูกูกูกูกูกูกูกูกูกฺกฺกฺกฺกฺ\nกฺกฺกูกูกูกูกูกูกูกูกฺกฺกูกูกูกูกูกูกูกูกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกูกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกูกฺกฺกูกฺกฺกฺกฺกฺกฺกูกฺกฺกูกฺกฺกฺกฺกูกูกูกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกฺกูกฺกฺกฺกฺกูกฺกฺกฺกฺกูกฺกฺกฺกฺกูกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกูกฺกฺกฺกฺกฺกฺกูกฺกฺกูกฺกฺกฺกฺกฺกฺกูกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกูกฺกฺกฺกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺ\nกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺ");
+			printf("กูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกู\nกูกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกฺกฺกฺกฺกฺกฺกฺกฺกูกูกฺกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกูกูกูกฺกฺกูกูกูกูกูกูกูกูกฺกฺกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกูกูกฺกูกูกฺกูกูกูกูกูกูกฺกูกูกฺกูกูกูกูกฺกฺกฺกูกูกูกูกูกูกูกฺกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกูกฺกูกูกูกูกฺกูกูกูกูกฺกูกูกูกูกฺกูกูกูกฺกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกฺกูกูกูกูกูกูกฺกูกูกฺกูกูกูกูกูกูกฺกูกูกฺกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกฺกูกูกูกูกู\nกูกฺกูกูกูกูกูกูกูกูกฺกฺกูกูกูกูกูกูกูกูกฺกูกฺกูกูกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกูกฺกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกฺกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกฺกูกูกูกูกูกูกูกูกฺกฺกฺกฺกฺกฺกฺกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกู\nกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกูกู");
+			delay(150);
+		}
+
+		//ฐิภำฝววเม฿ ฦ๙ฦฎป๖ป๓ผณมค
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+
+
+		startflag = 0; //ดูฝรตนม๖ พสฐิ 0ภธทฮ นูฒใมÜ
+		delay(1000);
+		clrscr();
+	}
 }
