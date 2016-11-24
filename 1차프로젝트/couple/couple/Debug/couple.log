@@ -1,0 +1,9 @@
+﻿  couple.cpp
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(402): warning C4305: '초기화 중': 'int'에서 'char'(으)로 잘립니다.
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(402): warning C4309: '초기화 중': 상수 값이 잘립니다.
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(503): warning C4305: '초기화 중': 'int'에서 'char'(으)로 잘립니다.
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(503): warning C4309: '초기화 중': 상수 값이 잘립니다.
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(548): warning C4305: '초기화 중': 'int'에서 'char'(으)로 잘립니다.
+c:\users\jh\documents\github\couplegame\couple\couple\couple.cpp(548): warning C4309: '초기화 중': 상수 값이 잘립니다.
+  couple.vcxproj -> C:\Users\Jh\Documents\GitHub\couplegame\couple\Debug\couple.exe
+  couple.vcxproj -> C:\Users\Jh\Documents\GitHub\couplegame\couple\Debug\couple.pdb (Full PDB)
